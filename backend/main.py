@@ -1,3 +1,9 @@
+# Cleanr — clean messy spreadsheets and documents
+# Copyright (C) 2026 <Ilias OKHLAL>
+#
+# Licensed under the GNU Affero General Public License v3.0.
+# See the LICENSE file for the full terms.
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
