@@ -16,8 +16,9 @@ TABULAR_OPTIONS = [
     {"key": "trim_whitespace", "label": "✂️ Trim whitespace", "type": OptionType.BOOL, "default": True},
     {"key": "drop_duplicate_rows", "label": "🧬 Drop duplicate rows", "type": OptionType.BOOL, "default": True},
     {"key": "normalize_column_names", "label": "📝 Normalize column names", "type": OptionType.BOOL, "default": True},
-    {"key": "standardize_dates", "label": "📅 Standardize dates", "type": OptionType.CHOICE, "choices": ["ISO", "US", "EU", "Keep"], "default": "Keep"},
-    {"key": "text_casing", "label": "🔠 Text casing", "type": OptionType.CHOICE, "choices": ["none", "lower", "Title", "UPPER"], "default": "none"},
+    {"key": "standardize_dates", "label": "📅 Standardize dates", "type": OptionType.CHOICE, "choices": ["keep", "iso", "us", "eu"], "default": "keep"},
+    {"key": "input_date_format", "label": "📆 Dates in the file are", "type": OptionType.CHOICE, "choices": ["auto", "day first", "month first"], "default": "auto"},
+    {"key": "text_casing", "label": "🔠 Text casing", "type": OptionType.CHOICE, "choices": ["none", "lower", "title", "upper"], "default": "none"},
     {"key": "missing_values", "label": "🕳️ Missing values", "type": OptionType.CHOICE, "choices": ["leave", "drop row", "fill blank"], "default": "leave"},
     {"key": "strip_currency_commas", "label": "💲 Strip currency + commas", "type": OptionType.BOOL, "default": False},
 ]

@@ -10,6 +10,7 @@ from backend.schemas.options import CleaningRequest
 from backend.schemas.responses import CleanResponse
 from backend.services import detect, tabular, text
 from backend.utils.limiter import limiter
+from backend.utils.naming import safe_output_name
 
 
 
@@ -84,7 +85,7 @@ async def clean(
         )
 
     return CleanResponse(
-        filename=file.filename,
+        filename=safe_output_name(file.filename, output_format),
         media_type=MEDIA_TYPES[output_format],
         content_b64=base64.b64encode(cleaned_bytes).decode("ascii"),
         text=cleaned_text[:MAX_AGENT_CHARS],

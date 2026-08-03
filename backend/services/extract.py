@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+import zipfile
 
 from charset_normalizer import from_bytes
 import io
@@ -9,6 +10,8 @@ import pytesseract
 from PIL import Image
 
 from concurrent.futures import ThreadPoolExecutor
+
+from backend.errors import ProcessingFailed
 
 # Constants for OCR and text extraction
 OCR_MAX_PAGES = 150
@@ -43,7 +46,13 @@ def _ocr_pdf(doc) -> str:
     def _read(image: Image.Image) -> str:
         return pytesseract.image_to_string(image, lang="ara+eng")
 
-    pages = list(doc)[:OCR_MAX_PAGES]
+    if doc.page_count > OCR_MAX_PAGES:
+        raise ProcessingFailed(
+            f"This PDF has {doc.page_count} pages and needs OCR, which is capped "
+            f"at {OCR_MAX_PAGES}. Split it, or upload the DOCX version instead."
+        )
+    pages = list(doc)
+    
     texts = []
     with ThreadPoolExecutor(max_workers=OCR_WORKERS) as pool:
         for start in range(0, len(pages), OCR_WORKERS):
@@ -58,19 +67,25 @@ def extract(data: bytes, filename: str) -> str:
         return _decode(data)
     
     elif suffix == ".pdf":
-        with pymupdf.open(stream=data, filetype="pdf") as doc:
-            cleaned = _strip_control_chars("\n".join(page.get_text() for page in doc))
-            if ARABIC.search(cleaned):
-                try:
-                    cleaned = _strip_control_chars(_ocr_pdf(doc))
-                except pytesseract.TesseractNotFoundError:
-                    pass
+        try:
+            with pymupdf.open(stream=data, filetype="pdf") as doc:
+                cleaned = _strip_control_chars("\n".join(page.get_text() for page in doc))
+                if ARABIC.search(cleaned):
+                    try:
+                        cleaned = _strip_control_chars(_ocr_pdf(doc))
+                    except pytesseract.TesseractNotFoundError:
+                        pass
+        except pymupdf.FileDataError as exc:
+            raise ProcessingFailed("This PDF couldn't be read — it may be corrupt.") from exc
         if not cleaned.strip():
-            raise ValueError("This PDF has no readable text layer.")
+            raise ProcessingFailed("This PDF has no readable text layer.")
         return cleaned
 
-    elif suffix in (".docx"):
-        doc = docx.Document(io.BytesIO(data))
+    elif suffix == ".docx":
+        try:
+            doc = docx.Document(io.BytesIO(data))
+        except zipfile.BadZipFile as exc:
+            raise ProcessingFailed("This Word document couldn't be read — it may be corrupt.") from exc
         return "\n".join(paragraph.text for paragraph in doc.paragraphs)
     
     raise ValueError(f"No extractor for {suffix}")

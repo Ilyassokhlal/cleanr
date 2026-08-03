@@ -24,6 +24,10 @@ def render() -> None:
     st.title("📤 Upload your file")
     st.caption(f"Accepts {', '.join('.' + e for e in accepted)} — you'll get back a .{output_format}")
 
+    if st.button("⬅️ Back to options"):
+        st.session_state["step"] = "form"
+        st.rerun()
+
     uploaded = st.file_uploader(
         "Choose a file",
         type=accepted,

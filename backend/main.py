@@ -17,7 +17,10 @@ from backend.utils.limiter import limiter
 
 import logging
 
-# Catching unhandled errors and logging them for later inspection
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 load_dotenv() # Load environment variables from .env file

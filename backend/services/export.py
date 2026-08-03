@@ -11,7 +11,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
-# right to left unicode ranges for Arabic and Hebrew
+# right to left unicode ranges for Arabic
 RTL = re.compile(r"[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]")
 
 def _set_rtl(paragraph) -> None:
