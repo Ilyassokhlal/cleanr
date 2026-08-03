@@ -19,8 +19,6 @@ def render() -> None:
         st.info("💬 No text available for this document.")
         return
 
-
-    document = cleaned["bytes"][:MAX_DOCUMENT_CHARS].decode("utf-8", errors="replace")
     history = st.session_state.setdefault("chat_history", [])
 
     st.subheader("💬 Ask about this document")

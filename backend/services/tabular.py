@@ -41,6 +41,16 @@ def _trim_whitespace(df: pd.DataFrame) -> pd.DataFrame:
             df[col] = df[col].str.strip()
     return df
 
+FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
+
+def _neutralise_formulas(df: pd.DataFrame) -> pd.DataFrame:
+    """Stop spreadsheet apps executing cell text as a formula."""
+    for col in df.columns:
+        if pd.api.types.is_string_dtype(df[col]):
+            mask = df[col].str.startswith(FORMULA_PREFIXES, na=False)
+            df.loc[mask, col] = "'" + df.loc[mask, col]
+    return df
+
 def clean(data: bytes, filename: str, request: CleaningRequest) -> tuple[bytes, str]:
     """Apply the selected options and return the cleaned file."""
     df = _read(data, filename)
@@ -94,4 +104,6 @@ def clean(data: bytes, filename: str, request: CleaningRequest) -> tuple[bytes, 
                 if pd.api.types.is_string_dtype(df[col]):
                     df[col] = df[col].fillna("")
 
+
+    df = _neutralise_formulas(df)
     return _write(df, request.output_format), df.to_csv(index=False)

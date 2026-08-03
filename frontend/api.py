@@ -7,6 +7,7 @@ import base64
 
 BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 TIMEOUT = 30
+CLEAN_TIMEOUT = 180
 
 
 # A few functions that wrap the backend API endpoints. These are called by the frontend step functions.

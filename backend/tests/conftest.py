@@ -61,3 +61,10 @@ def stub_anthropic(monkeypatch):
         monkeypatch.setattr(ask_module, "_client", fake)
 
     return _stub
+
+@pytest.fixture(autouse=True)
+def _disable_rate_limits():
+    """Rate limits are per-IP; the suite would otherwise trip its own limit."""
+    from backend.utils.limiter import limiter
+
+    limiter.enabled = False
