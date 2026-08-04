@@ -2,7 +2,7 @@
 
 Clean messy spreadsheets and documents in the browser, then ask questions about what you uploaded.
 
-<!-- **[Try it live →](https://huggingface.co/spaces/MY-USERNAME/cleanr)** -->
+**[Try it live →](https://file-cleanr.streamlit.app)**
 
 Drop in a CSV full of ragged whitespace and inconsistent dates, or a PDF with mangled encoding and a header on every page. Choose what to fix, get the tidied file back in the format you want, and ask an AI agent about its contents.
 
