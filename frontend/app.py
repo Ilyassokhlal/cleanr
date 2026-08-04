@@ -9,7 +9,13 @@ import streamlit as st
 import f_form_
 import f_upload_, f_results_
 
+import subprocess
+import sys
+import time
+
 import requests
+
+import api
 
 # Cleanr — entry point and step routing.
 
@@ -38,6 +44,29 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+@st.cache_resource
+def _start_backend():
+    """Start uvicorn once per container. No-op if something is already serving."""
+    try:
+        requests.get(f"{api.BASE_URL}/health", timeout=1)
+        return None
+    except requests.exceptions.RequestException:
+        pass
+
+    process = subprocess.Popen(
+        [sys.executable, "-m", "uvicorn", "backend.main:app", "--host", "127.0.0.1", "--port", "8000"]
+    )
+    for _ in range(60):
+        try:
+            requests.get(f"{api.BASE_URL}/health", timeout=1)
+            break
+        except requests.exceptions.RequestException:
+            time.sleep(0.5)
+    return process
+
+
+_start_backend()
 
 if "step" not in st.session_state:
     st.session_state["step"] = "form"
