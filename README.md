@@ -81,9 +81,13 @@ The agent is Claude Haiku 4.5. The document is cached on the first question, so 
 
 ## Arabic PDFs
 
-Arabic PDFs are read with OCR rather than their text layer, because that layer usually can't be trusted. Word in particular writes a character map that drops letters and reorders words — `الأمل` comes out as `المل`, `خلال` as `الل`. Every text-layer extractor reads the same broken map, so switching libraries doesn't help.
+Arabic PDFs are read twice, once as an image and once from the text layer, because neither source is right on its own.
 
-Rendering each page and reading the glyphs recovers the letters. It's slower, and it only runs when Arabic is detected, so nothing else pays for it.
+The text layer usually can't be trusted. Word in particular writes a character map that drops letters and reorders words — `الأمل` comes out as `المل`, `خلال` as `الل`. Every text-layer extractor reads the same broken map, so switching libraries doesn't help. Rendering each page and running OCR over the glyphs recovers the letters.
+
+OCR then misreads the numerals, turning `٢٠٢٥` into `.6`. The text layer has those exactly right — a digit has one form, where an Arabic letter has four contextual shapes, so nothing is lost mapping it back. It hands them over reversed, which sorting each run by horizontal position undoes. Each number is then matched to its place in the OCR output by bounding box and swapped in. A token is only replaced when OCR read it as a number too, so values like `report_q1.xlsx` stay intact.
+
+It all runs only when Arabic is detected, so nothing else pays for the extra work.
 
 ![An Arabic document, cleaned](screenshots/Arabic%20preview.png)
 
@@ -105,7 +109,7 @@ python -m pytest backend/tests -q
 
 **Multi-sheet workbooks need XLSX output.** Every sheet is kept when you export to XLSX; choosing CSV or JSON is refused rather than silently dropping tabs.
 
-**Arabic PDFs lose digits.** OCR recovers the letters a broken text layer mangles, but misreads Arabic-Indic numerals. Upload the DOCX where you can.
+**Arabic PDFs can still lose a word.** Digits are recovered from the text layer, but OCR sometimes misreads a word that the text layer damages too — when both sources are wrong there is nothing to fall back on. Upload the DOCX where you can.
 
 **Caps.** 100 MB per upload, 150 pages for OCR, 600,000 characters visible to the agent.
 
